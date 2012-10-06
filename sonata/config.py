@@ -71,6 +71,8 @@ class Config:
         self.titleformat = "[Sonata] %A - %T"
         self.currsongformat1 = "%T"
         self.currsongformat2 = currsongformat2
+        self.currsongformat3 = "par %A"
+        self.currsongformat4 = "de %B"
         # this mirrors Main.columns widths
         self.columnwidths = [325,10]
         self.autoconnect = True

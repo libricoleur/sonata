@@ -25,8 +25,9 @@ class Constants:
         self.VIEW_GENRE = 2
         self.VIEW_ALBUM = 3
         self.LYRIC_TIMEOUT = 10
-        self.NOTIFICATION_WIDTH_MAX = 500
-        self.NOTIFICATION_WIDTH_MIN = 350
+        self.NOTIFICATION_COVER_RATIO = 3
+        self.NOTIFICATION_WIDTH_MAX = 100+75*self.NOTIFICATION_COVER_RATIO
+        self.NOTIFICATION_WIDTH_MIN = 50+75*self.NOTIFICATION_COVER_RATIO
         self.FULLSCREEN_COVER_SIZE = 500
         self.ART_LOCATION_HOMECOVERS = 0      # ~/.covers/[artist]-[album].jpg
         self.ART_LOCATION_COVER = 1           # file_dir/cover.jpg

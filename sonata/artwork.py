@@ -40,10 +40,7 @@ class Artwork(object):
         self.albumimage = ui.image()
         self.albumimage.set_from_file(self.sonatacd)
 
-        self.trayalbumimage1 = ui.image(w=51, h=77, x=1)
-        self.trayalbumeventbox = ui.eventbox(w=59, h=90, add=self.trayalbumimage1, state=gtk.STATE_SELECTED, visible=True)
-
-        self.trayalbumimage2 = ui.image(w=26, h=77)
+        self.trayalbumimage = ui.image(w=51*consts.NOTIFICATION_COVER_RATIO, h=77*consts.NOTIFICATION_COVER_RATIO)
 
         self.fullscreenalbumimage = ui.image(w=consts.FULLSCREEN_COVER_SIZE, h=consts.FULLSCREEN_COVER_SIZE, x=1)
         self.fullscreenalbumlabel = ui.label(x=0.5)
@@ -81,7 +78,7 @@ class Artwork(object):
         return self.info_image
 
     def get_trayalbum(self):
-        return self.trayalbumeventbox, self.trayalbumimage2
+        return self.trayalbumimage
 
     def get_fullscreenalbumimage(self):
         return self.fullscreenalbumimage
@@ -113,15 +110,11 @@ class Artwork(object):
     def artwork_set_tooltip_art(self, pix):
         # Set artwork
         if not self.is_lang_rtl:
-            pix1 = pix.subpixbuf(0, 0, 51, 77)
-            pix2 = pix.subpixbuf(51, 0, 26, 77)
+            pix1 = pix.subpixbuf(0, 0, 76*consts.NOTIFICATION_COVER_RATIO, 77*consts.NOTIFICATION_COVER_RATIO)
         else:
-            pix1 = pix.subpixbuf(26, 0, 51, 77)
-            pix2 = pix.subpixbuf(0, 0, 26, 77)
-        self.trayalbumimage1.set_from_pixbuf(pix1)
-        self.trayalbumimage2.set_from_pixbuf(pix2)
+            pix1 = pix.subpixbuf(26, 0, 76*consts.NOTIFICATION_COVER_RATIO, 77*consts.NOTIFICATION_COVER_RATIO)
+        self.trayalbumimage.set_from_pixbuf(pix)
         del pix1
-        del pix2
 
     def artwork_stop_update(self):
         self.stop_art_update = True
@@ -472,8 +465,13 @@ class Artwork(object):
                     pix1 = img.pixbuf_add_border(pix1)
                     pix1 = img.pixbuf_pad(pix1, 77, 77)
                     self.albumimage.set_from_pixbuf(pix1)
-                    self.artwork_set_tooltip_art(pix1)
                     del pix1
+                    (pix2, w, h) = img.get_pixbuf_of_size(pix, 75*consts.NOTIFICATION_COVER_RATIO)
+                    pix2 = self.artwork_apply_composite_case(pix2, w, h)
+                    pix2 = img.pixbuf_add_border(pix2)
+                    pix2 = img.pixbuf_pad(pix2, 77*consts.NOTIFICATION_COVER_RATIO, 77*consts.NOTIFICATION_COVER_RATIO)
+                    self.artwork_set_tooltip_art(pix2)
+                    del pix2
 
                     # Artwork for library, if current song matches:
                     self.library_set_image_for_current_song(cache_key)

@@ -582,34 +582,28 @@ class Base(object):
 
         # Song notification window:
         outtertipbox = gtk.VBox()
-        tipbox = gtk.HBox()
+        tipbox = gtk.VBox()
 
-        self.trayalbumeventbox, self.trayalbumimage2 = self.artwork.get_trayalbum()
+        self.trayalbumimage = self.artwork.get_trayalbum()
 
         hiddenlbl = ui.label(w=2, h=-1)
         tipbox.pack_start(hiddenlbl, False, False, 0)
-        tipbox.pack_start(self.trayalbumeventbox, False, False, 0)
 
-        tipbox.pack_start(self.trayalbumimage2, False, False, 0)
+        tipbox.pack_start(self.trayalbumimage, False, False, 0)
         if not self.config.show_covers:
-            ui.hide(self.trayalbumeventbox)
-            ui.hide(self.trayalbumimage2)
-        innerbox = gtk.VBox()
-        self.traycursonglabel1 = ui.label(markup=_("Playlist"), y=1)
-        self.traycursonglabel2 = ui.label(markup=_("Playlist"), y=0)
-        label1 = ui.label(markup='<span size="10"> </span>')
-        innerbox.pack_start(label1)
-        innerbox.pack_start(self.traycursonglabel1, True, True, 0)
-        innerbox.pack_start(self.traycursonglabel2, True, True, 0)
-        self.trayprogressbar = ui.progressbar(orient=gtk.PROGRESS_LEFT_TO_RIGHT, frac=0, step=0.05, ellipsize=pango.ELLIPSIZE_NONE)
-        label2 = ui.label(markup='<span size="10"> </span>')
-        innerbox.pack_start(label2)
-        innerbox.pack_start(self.trayprogressbar, False, False, 0)
-        if not self.config.show_progress:
-            ui.hide(self.trayprogressbar)
-        label3 = ui.label(markup='<span size="10"> </span>')
-        innerbox.pack_start(label3)
-        tipbox.pack_start(innerbox, True, True, 6)
+            ui.hide(self.trayalbumimage)
+        self.traycursonglabel1 = ui.label(markup=_("Playlist"), x=0.5)
+        self.traycursonglabel2 = ui.label(markup=_("Playlist"), x=0.5)
+        self.traycursonglabel3 = ui.label(markup=_("Playlist"), x=0.5)
+        label1 = ui.label(markup='<span size="5"> </span>')
+        tipbox.pack_start(label1)
+        tipbox.pack_start(self.traycursonglabel1, False, False, 0)
+        tipbox.pack_start(self.traycursonglabel2, False, False, 0)
+        tipbox.pack_start(self.traycursonglabel3, False, False, 0)
+        label2 = ui.label(markup='<span size="5"> </span>')
+        tipbox.pack_start(label2)
+        label3 = ui.label(markup='<span size="5"> </span>')
+        tipbox.pack_start(label3)
         outtertipbox.pack_start(tipbox, False, False, 2)
         outtertipbox.show_all()
         self.traytips.add_widget(outtertipbox)
@@ -1636,14 +1630,13 @@ class Base(object):
             # self.on_currsong_notify()) in order to ensure that the notification
             # popup will have the correct height when being displayed for
             # the first time after a stopped state.
-            if self.config.show_progress:
-                self.trayprogressbar.show()
             self.traycursonglabel2.show()
             if self.config.show_covers:
-                self.trayalbumeventbox.show()
-                self.trayalbumimage2.show()
+                self.trayalbumimage.show()
 
-            for label in (self.cursonglabel1, self.cursonglabel2, self.traycursonglabel1, self.traycursonglabel2):
+            for label in (self.cursonglabel1, self.cursonglabel2,
+                    self.traycursonglabel1, self.traycursonglabel2,
+                    self.traycursonglabel3):
                 label.set_ellipsize(pango.ELLIPSIZE_END)
 
             self.expander_ellipse_workaround()
@@ -1662,14 +1655,31 @@ class Base(object):
                         self.songinfo, True))
             else:
                 newlabel2 = '<small> </small>'
+            if len(self.config.currsongformat3) > 0:
+                newlabel3 = ('<small>%s </small>' %
+                         formatting.parse(
+                        self.config.currsongformat3,
+                        self.songinfo, True))
+            else:
+                newlabel3 = '<small> </small>'
+            if len(self.config.currsongformat4) > 0:
+                newlabel4 = ('<small>%s </small>' %
+                         formatting.parse(
+                        self.config.currsongformat4,
+                        self.songinfo, True))
+            else:
+                newlabel4 = '<small> </small>'
+
             if newlabel1 != self.cursonglabel1.get_label():
                 self.cursonglabel1.set_markup(newlabel1)
             if newlabel2 != self.cursonglabel2.get_label():
                 self.cursonglabel2.set_markup(newlabel2)
             if newlabel1 != self.traycursonglabel1.get_label():
                 self.traycursonglabel1.set_markup(newlabel1)
-            if newlabel2 != self.traycursonglabel2.get_label():
-                self.traycursonglabel2.set_markup(newlabel2)
+            if newlabel3 != self.traycursonglabel2.get_label():
+                self.traycursonglabel2.set_markup(newlabel3)
+            if newlabel4 != self.traycursonglabel3.get_label():
+                self.traycursonglabel3.set_markup(newlabel4)
             self.expander.set_tooltip_text(self.cursonglabel1.get_text() + "\n" + self.cursonglabel2.get_text())
         else:
             for label in (self.cursonglabel1, self.cursonglabel2, self.traycursonglabel1, self.cursonglabel2):
@@ -1687,9 +1697,7 @@ class Base(object):
                 self.traycursonglabel1.set_label(_('No Read Permission'))
             else:
                 self.traycursonglabel1.set_label(_('Stopped'))
-            self.trayprogressbar.hide()
-            self.trayalbumeventbox.hide()
-            self.trayalbumimage2.hide()
+            self.trayalbumimage.hide()
             self.traycursonglabel2.hide()
         self.update_infofile()
 
@@ -1767,10 +1775,10 @@ class Base(object):
                     pass
 
     def on_progressbar_notify_fraction(self, *_args):
-        self.trayprogressbar.set_fraction(self.progressbar.get_fraction())
+        return
 
     def on_progressbar_notify_text(self, *_args):
-        self.trayprogressbar.set_text(self.progressbar.get_text())
+        return
 
     def update_infofile(self):
         if self.config.use_infofile is True:
@@ -2796,8 +2804,7 @@ class Base(object):
     def prefs_progress_toggled(self, button):
         self.config.show_progress = button.get_active()
         func = ui.show if self.config.show_progress else ui.hide
-        for widget in [self.progressbox, self.trayprogressbar]:
-            func(widget)
+        func(self.progressbox)
 
     def prefs_art_toggled(self, button, art_hbox1, art_hbox2, art_stylized):
         button_active = button.get_active()
@@ -2807,9 +2814,9 @@ class Base(object):
         if button_active:
             self.traytips.set_size_request(self.notification_width, -1)
             self.artwork.artwork_set_default_icon()
-            for widget in [self.imageeventbox, self.info_imagebox, self.trayalbumeventbox, self.trayalbumimage2]:
+            for widget in [self.imageeventbox, self.info_imagebox, self.trayalbumimage]:
                 widget.set_no_show_all(False)
-                if widget in [self.trayalbumeventbox, self.trayalbumimage2]:
+                if widget is self.trayalbumimage:
                     if self.status_is_play_or_pause():
                         widget.show_all()
                 else:
@@ -2819,7 +2826,7 @@ class Base(object):
             self.artwork.artwork_update()
         else:
             self.traytips.set_size_request(self.notification_width-100, -1)
-            for widget in [self.imageeventbox, self.info_imagebox, self.trayalbumeventbox, self.trayalbumimage2]:
+            for widget in [self.imageeventbox, self.info_imagebox, self.trayalbumimage]:
                 ui.hide(widget)
             self.config.show_covers = False
             self.update_cursong()
